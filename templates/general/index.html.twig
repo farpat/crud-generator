@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Index!{% endblock %}
+
+{% block body %}
+    <h2 class="mt-5 mb-4">
+        {{ resources | length }} row(s) of {{ resourceName }}
+
+        <a class="btn btn-success" href="{{ path('general.create', {'resourceName' : resourceName}) }}">
+            Add {{ resourceName }}
+        </a>
+    </h2>
+
+    {% set id = app.flashes('id') %}
+    {% set success = app.flashes('success') %}
+
+    {% if success %}
+        <section class="alert alert-success">
+            {{ success.0 | raw }}
+        </section>
+    {% endif %}
+
+
+
+
+
+    <table class="table">
+        <thead>
+        <tr>
+            {% for key,property in properties %}
+                <th>
+                    {{ read_property_name(key, property) }}
+                </th>
+            {% endfor %}
+            <th>(actions)</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for resource in resources %}
+            <tr class="{{ id and id.0 is same as (read_property_resource(resource, 'id')) ? 'table-primary':'' }}">
+                {% for property in properties | keys %}
+                    <td>
+                        {{ read_property_resource(resource, property) }}
+                    </td>
+                {% endfor %}
+                <td>
+                    <a class="btn btn-primary"
+                       href="{{ path('general.edit', {'resourceName' : resourceName, 'resourceId': resource.id}) }}">Edit</a>
+                    <form action="{{ path('general.destroy', {'resourceName': resourceName, 'resourceId': resource.id}) }}"
+                          method="POST">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <input type="hidden" name="_token" value="{{ csrf_token('general.destroy.' ~ resource.id) }}">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+{% endblock %}

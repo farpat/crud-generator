@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create!{% endblock %}
+
+{% block body %}
+    <h2 class="mt-5 mb-4">
+        Create <strong>{{ resourceName }}</strong>
+
+        <a class="btn btn-link" href="{{ path('general.index', {'resourceName': resourceName}) }}">&larr; Back to index</a>
+    </h2>
+
+    {% include 'general/_form.html.twig' %}
+{% endblock %}
