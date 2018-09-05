@@ -219,4 +219,9 @@ class User implements UserInterface
     {
         return $this->posts;
     }
+
+    public function __toString ()
+    {
+        return $this->getUsername();
+    }
 }

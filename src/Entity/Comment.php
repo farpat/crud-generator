@@ -67,7 +67,7 @@ class Comment
      *
      * @return int
      */
-    public function getId()
+    public function getId ()
     {
         return $this->id;
     }
@@ -79,7 +79,7 @@ class Comment
      *
      * @return Comment
      */
-    public function setUsername($username)
+    public function setUsername ($username)
     {
         $this->username = $username;
 
@@ -91,7 +91,7 @@ class Comment
      *
      * @return string
      */
-    public function getUsername()
+    public function getUsername ()
     {
         return $this->username;
     }
@@ -103,7 +103,7 @@ class Comment
      *
      * @return Comment
      */
-    public function setEmail($email)
+    public function setEmail ($email)
     {
         $this->email = $email;
 
@@ -115,7 +115,7 @@ class Comment
      *
      * @return string
      */
-    public function getEmail()
+    public function getEmail ()
     {
         return $this->email;
     }
@@ -127,7 +127,7 @@ class Comment
      *
      * @return Comment
      */
-    public function setContent($content)
+    public function setContent ($content)
     {
         $this->content = $content;
 
@@ -139,7 +139,7 @@ class Comment
      *
      * @return string
      */
-    public function getContent()
+    public function getContent ()
     {
         return $this->content;
     }
@@ -151,7 +151,7 @@ class Comment
      *
      * @return Comment
      */
-    public function setCreatedAt($createdAt)
+    public function setCreatedAt ($createdAt)
     {
         $this->createdAt = $createdAt;
 
@@ -163,7 +163,7 @@ class Comment
      *
      * @return \DateTime
      */
-    public function getCreatedAt()
+    public function getCreatedAt ()
     {
         return $this->createdAt;
     }
@@ -175,7 +175,7 @@ class Comment
      *
      * @return Comment
      */
-    public function setPost(\App\Entity\Post $post = null)
+    public function setPost (\App\Entity\Post $post = null)
     {
         $this->post = $post;
 
@@ -187,12 +187,22 @@ class Comment
      *
      * @return \App\Entity\Comment
      */
-    public function getPost()
+    public function getPost ()
     {
         return $this->post;
     }
 
-    public function getGravatar () {
+    public function getGravatar ()
+    {
         return "https://www.gravatar.com/avatar/" . md5($this->email) . '?d=mm&s=100';
+    }
+
+    public function __toString ()
+    {
+        if (strlen($this->content) <= 50) {
+            return $this->content;
+        }
+
+        return substr($this->content, 0, 50) . ' &hellip;';
     }
 }

@@ -4,7 +4,7 @@
 
 {% block body %}
     <h2 class="mt-5 mb-4">
-        {{ resources | length }} row(s) of {{ resourceName }}
+        {{ resources | length }} row(s) of {{ resourceName }} in total
 
         <a class="btn btn-success" href="{{ path('general.create', {'resourceName' : resourceName}) }}">
             Add {{ resourceName }}
@@ -22,8 +22,6 @@
 
 
 
-
-
     <table class="table">
         <thead>
         <tr>
@@ -38,9 +36,12 @@
         <tbody>
         {% for resource in resources %}
             <tr class="{{ id and id.0 is same as (read_property_resource(resource, 'id')) ? 'table-primary':'' }}">
-                {% for property in properties | keys %}
+                {% for property, annotation in properties %}
                     <td>
-                        {{ read_property_resource(resource, property) }}
+                        {{ read_hide_resource_in_index(annotation) | raw }}
+                        <div>
+                            {{ read_property_resource(resource, property) | raw }}
+                        </div>
                     </td>
                 {% endfor %}
                 <td>
@@ -56,6 +57,31 @@
             </tr>
         {% endfor %}
         </tbody>
-
     </table>
+
+    <div class="pagerfanta">
+        {{ pagerfanta(resources, 'twitter_bootstrap4') }}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        const hideButtons = document.querySelectorAll('.btn-hide');
+        hideButtons.forEach(function(btn) {
+           btn.addEventListener('click', function(e) {
+               e.preventDefault();
+
+               if (btn.dataset.shown == 0) {
+                   btn.innerText = 'Show';
+                   btn.nextElementSibling.style.display = 'none';
+                   btn.dataset.shown = 1;
+               }
+               else {
+                   btn.innerText = 'Hide';
+                   btn.nextElementSibling.style.display = 'block';
+                   btn.dataset.shown = 0;
+               }
+           });
+        });
+    </script>
 {% endblock %}

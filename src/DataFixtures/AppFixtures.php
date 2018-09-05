@@ -41,7 +41,8 @@ class AppFixtures extends Fixture
                 $post->setCategory($category);
 
                 for ($k = 0; $k < 10; $k++) {
-                    $post->addComment($this->createComment());
+                    $post->addComment($comment = $this->createComment());
+                    $comment->setPost($post);
                 }
             }
 

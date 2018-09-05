@@ -29,6 +29,12 @@ class CrudAnnotation
     public $showInCreate;
 
     /**
+     * Afficher un bouton de masquage dans chaque colonne de la propriété
+     * @var bool
+     */
+    public $showHideInIndex;
+
+    /**
      * Afficher dans le formulaire de création
      * @var bool
      */
@@ -43,6 +49,7 @@ class CrudAnnotation
         $this->showInIndex = $this->showInIndex ?? true;
         $this->showInCreate = $this->showInCreate ?? true;
         $this->showInEdit = $this->showInEdit ?? true;
+        $this->showHideInIndex = $this->showHideInIndex ?? false;
         $this->name = $this->name ?? null;
     }
 }

@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
+
 /**
  * Post
  *
@@ -30,6 +31,7 @@ class Post
     /**
      * @ORM\ManyToOne(targetEntity="Category", inversedBy="posts", cascade={"persist"})
      * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
+     * @CrudAnnotation(showInIndex=false)
      */
     private $category;
 
@@ -83,6 +85,7 @@ class Post
     /**
      * @ORM\OneToMany(targetEntity="Comment", mappedBy="post", cascade={"persist"})
      * @ORM\OrderBy({"createdAt" = "DESC"})
+     * @CrudAnnotation(showHideInIndex=true)
      */
     private $comments;
 

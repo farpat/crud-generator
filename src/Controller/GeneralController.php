@@ -4,6 +4,9 @@ namespace App\Controller;
 
 use App\Utilities\Crud\ResourceResolver;
 use Doctrine\Common\Persistence\ObjectManager;
+use Pagerfanta\Adapter\ArrayAdapter;
+use Pagerfanta\Adapter\DoctrineORMAdapter;
+use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{RedirectResponse, Request, Response};
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,18 +21,27 @@ class GeneralController extends AbstractController
     /**
      * @Route("/{resourceName}", name="general.index")
      * @param ResourceResolver $resolver
+     * @param Request $request
      * @param string $resourceName
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \ReflectionException
      * @throws \Exception
      */
-    public function index (ResourceResolver $resolver, string $resourceName): Response
+    public function index (ResourceResolver $resolver, Request $request, string $resourceName): Response
     {
+        if ($request->query->getInt('page') === 1) {
+            return $this->redirectToRoute('general.index', compact('resourceName'));
+        }
+
         $resolver->setResource($resourceName);
         $repository = $resolver->resolveRepository();
         $properties = $resolver->getIndexProperties();
 
-        $resources = $repository->findAll();
+        $adapter = new ArrayAdapter($repository->findAll());
+        $resources = (new Pagerfanta($adapter))
+            ->setMaxPerPage(3)
+            ->setCurrentPage($request->query->getInt('page', 1));
 
         return $this->render('general/index.html.twig', compact('resources', 'properties', 'resourceName'));
     }
