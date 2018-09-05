@@ -9,7 +9,8 @@ Le code le plus important se trouve dans :
 - Il faut aussi noter que les entités prennent l'annotation CrudAnnotation permettant de rajouter un peu de personnalisation au CRUD généralisé
 
 # Utilisation
-`git clone ...`
-`bin/console doctrine:migrations:migrate`
-`bin/console doctrine:fixtures:load`
-Il faut se rendre sur http://localhost:8000/general/_list pour jouer avec (et se laisser guider)
+- `git clone ...`
+- `bin/console doctrine:migrations:migrate`
+- `bin/console doctrine:fixtures:load`
+- `bin/console server:run`
+- Il faut se rendre sur http://localhost:8000/general/_list pour jouer avec (et se laisser guider)
