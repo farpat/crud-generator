@@ -4,9 +4,9 @@
 
 {% block body %}
     <h2 class="mt-5 mb-4">
-        Edit <strong>{{ resourceName }}</strong> << {{ resource.name }} >>
+        Edit <strong>{{ resource }}</strong> << {{ entity.name ?? entity.username }} >>
 
-        <a class="btn btn-link" href="{{ path('general.index', {'resourceName': resourceName}) }}">&larr; Back to index</a>
+        <a class="btn btn-link" href="{{ path('general.index', {'resource': resource}) }}">&larr; Back to index</a>
     </h2>
 
     {% include 'general/_form.html.twig' %}

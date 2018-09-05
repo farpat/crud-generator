@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Utilities\Crud\CrudAnnotation;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -23,7 +24,8 @@ class User implements UserInterface
     private $id;
 
     /**
-     * @ORM\OneToMany(targetEntity="Post", mappedBy="user", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="Post", mappedBy="user", cascade={"persist", "remove"})
+     * @CrudAnnotation(showInEdit=false, showInCreate=false)
      */
     private $posts;
 
@@ -38,6 +40,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="password", type="string", length=255)
+     * @CrudAnnotation(showInIndex=false)
      */
     private $password;
 

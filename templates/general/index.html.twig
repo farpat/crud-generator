@@ -4,11 +4,13 @@
 
 {% block body %}
     <h2 class="mt-5 mb-4">
-        {{ resources | length }} row(s) of {{ resourceName }} in total
+        {{ entities | length }} row(s) of {{ resource }} in total
 
-        <a class="btn btn-success" href="{{ path('general.create', {'resourceName' : resourceName}) }}">
-            Add {{ resourceName }}
+        <a class="btn btn-success" href="{{ path('general.create', {'resource' : resource}) }}">
+            Add {{ resource }}
         </a>
+
+        <a class="btn btn-link" href="{{ path('general.list') }}">&larr; Back to list of resources</a>
     </h2>
 
     {% set id = app.flashes('id') %}
@@ -34,23 +36,23 @@
         </tr>
         </thead>
         <tbody>
-        {% for resource in resources %}
-            <tr class="{{ id and id.0 is same as (read_property_resource(resource, 'id')) ? 'table-primary':'' }}">
+        {% for entity in entities %}
+            <tr class="{{ id and id.0 is same as (read_property_entity(entity, 'id')) ? 'table-primary':'' }}">
                 {% for property, annotation in properties %}
                     <td>
-                        {{ read_hide_resource_in_index(annotation) | raw }}
+                        {{ read_hide_entity_in_index(annotation) | raw }}
                         <div>
-                            {{ read_property_resource(resource, property) | raw }}
+                            {{ read_property_entity(entity, property) | raw }}
                         </div>
                     </td>
                 {% endfor %}
                 <td>
                     <a class="btn btn-primary"
-                       href="{{ path('general.edit', {'resourceName' : resourceName, 'resourceId': resource.id}) }}">Edit</a>
-                    <form action="{{ path('general.destroy', {'resourceName': resourceName, 'resourceId': resource.id}) }}"
+                       href="{{ path('general.edit', {'resource' : resource, 'resourceId': entity.id}) }}">Edit</a>
+                    <form action="{{ path('general.destroy', {'resource': resource, 'resourceId': entity.id}) }}"
                           method="POST">
                         <input type="hidden" name="_method" value="DELETE">
-                        <input type="hidden" name="_token" value="{{ csrf_token('general.destroy.' ~ resource.id) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('general.destroy.' ~ entity.id) }}">
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
                 </td>
@@ -60,7 +62,7 @@
     </table>
 
     <div class="pagerfanta">
-        {{ pagerfanta(resources, 'twitter_bootstrap4') }}
+        {{ pagerfanta(entities, 'twitter_bootstrap4') }}
     </div>
 {% endblock %}
 

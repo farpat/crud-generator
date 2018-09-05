@@ -2,8 +2,6 @@
 
 namespace App\Repository;
 
-use App\Entity\Category;
-
 /**
  * CategoryRepository
  *
@@ -12,25 +10,4 @@ use App\Entity\Category;
  */
 class CategoryRepository extends \Doctrine\ORM\EntityRepository
 {
-
-    public function incrementCount(Category $category) {
-        return $this->updateCount($category, " + 1");
-    }
-
-    public function decrementCount(Category $category) {
-        return $this->updateCount($category, " - 1");
-    }
-
-    private function updateCount(Category $category, $direction)
-    {
-        $this->createQueryBuilder("c")
-            ->update("App:Category", "c")
-            ->set("c.postCount", "c.postCount $direction")
-            ->where("c = :category")
-            ->setParameter('category', $category)
-            ->getQuery()
-            ->execute();
-        return $this;
-    }
-
 }

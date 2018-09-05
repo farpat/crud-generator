@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}List!{% endblock %}
+
+{% block body %}
+    <h1> {{ resources | length }} resource(s)</h1>
+
+    {% if resources is not empty %}
+        <ul>
+            {% for resource, count in resources %}
+                <li><a href="{{ path('general.index', {'resource' : resource}) }}">{{ resource }}</a> : {{ count }} row(s)</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+{% endblock %}
+
+

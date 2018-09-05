@@ -5,10 +5,16 @@ namespace App\Utilities\Crud;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Persistence\ObjectRepository;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 
+/**
+ * Cette classe prend " en entrée " un nom de ressource (exemples : post, category, comment, etc.)
+ * Elle permet de rendre en retour une entité, une repository, un formulaire.
+ * @package App\Utilities\Crud
+ */
 class ResourceResolver
 {
     /**
@@ -24,15 +30,20 @@ class ResourceResolver
      */
     private $reader;
     /**
-     * @var FormFactory
+     * @var FormFactoryInterface
      */
     private $formFactoryrm;
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
 
-    public function __construct (ObjectManager $manager, Reader $reader, FormFactoryInterface $formFactoryrm)
+    public function __construct (ObjectManager $manager, Reader $reader, FormFactoryInterface $formFactoryrm, ContainerInterface $container)
     {
         $this->manager = $manager;
         $this->reader = $reader;
         $this->formFactoryrm = $formFactoryrm;
+        $this->container = $container;
     }
 
     /**
@@ -47,6 +58,7 @@ class ResourceResolver
     }
 
     /**
+     * Sert à lire les propriétés à afficher dans la page d'index
      * @throws \ReflectionException
      * @return array
      */
@@ -60,6 +72,7 @@ class ResourceResolver
      *
      * @return array
      * @throws \ReflectionException
+     * @throws \Exception
      */
     private function getProperties (string $type): array
     {
@@ -83,7 +96,7 @@ class ResourceResolver
     }
 
     /**
-     *
+     * Une fois le $this->setResource() effectué, on peut résoudre la classe de l'entité
      * @return ObjectRepository
      * @throws \Exception
      */
@@ -110,12 +123,24 @@ class ResourceResolver
         }
     }
 
+    /**
+     * Sert à créer une entité du nom de la ressource $this->resource
+     * @return mixed
+     * @throws \Exception
+     */
     public function createEntity ()
     {
         $entityClassName = $this->resolveEntityClassName();
         return new $entityClassName;
     }
 
+    /**
+     *
+     * @param $data Entité à hydrater par le formulaire
+     *
+     * @return FormBuilderInterface
+     * @throws \ReflectionException
+     */
     public function createFormBuilder ($data): FormBuilderInterface
     {
         $builder = $this->formFactoryrm->createBuilder(FormType::class, $data)->setMethod($data->getId() ? 'PUT' : 'POST');
@@ -127,13 +152,20 @@ class ResourceResolver
         return $builder;
     }
 
+    /**
+     * Récupère une entité (à partir de $this->resource et $resourceId passé en paramètre)
+     * @param int $resourceId Id de la ressource
+     *
+     * @return null|object
+     * @throws \Exception
+     */
     public function getEntity (int $resourceId)
     {
         return $this->resolveRepository()->find($resourceId);
     }
 
     /**
-     *
+     * Résouds une entité à partir de $this->resource
      * @return ObjectRepository
      * @throws \Exception
      */
@@ -141,5 +173,35 @@ class ResourceResolver
     {
         $this->verifyExistenceOfClasses();
         return $this->manager->getRepository('App\Entity\\' . $this->resource);
+    }
+
+    /**
+     * Retourne un tableau contenant la liste des ressources.
+     * Le tableau est formaté => ['resource' => 'nombre de lignes'] (exemple : ['category' => 10, 'comment' => 1000, etc.])
+     * @return array
+     * @throws \Exception
+     */
+    public function getListOfResources (): array
+    {
+        $entityDir = $this->container->getParameter('kernel.project_dir') . '/src/Entity';
+
+        if (!file_exists($entityDir)) {
+            throw new \Exception("The directory << $entityDir >> doesn't exists!");
+        }
+
+        $entities = array_diff(scandir($entityDir), ['.', '..', '.gitignore']);
+
+        $return = [];
+
+        foreach($entities as $entity) {
+            $resource = substr(lcfirst($entity), 0, -4);
+            $return[$resource] = $this->setResource($resource)->resolveRepository()
+                ->createQueryBuilder('r')
+                ->select('COUNT(r)')
+                ->getQuery()
+                ->getSingleScalarResult();
+        }
+
+        return $return;
     }
 }

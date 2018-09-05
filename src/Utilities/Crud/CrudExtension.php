@@ -1,11 +1,8 @@
 <?php
 
-namespace App\Twig;
+namespace App\Utilities\Crud;
 
-use App\Utilities\Crud\CrudAnnotation;
 use Doctrine\ORM\PersistentCollection;
-use Symfony\Bundle\TwigBundle\DependencyInjection\TwigExtension;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -33,12 +30,12 @@ class CrudExtension extends AbstractExtension
     {
         return [
             new TwigFunction('read_property_name', [$this, 'readPropertyName']),
-            new TwigFunction('read_property_resource', [$this, 'readPropertyResource']),
-            new TwigFunction('read_hide_resource_in_index', [$this, 'readHideResourceInIndex']),
+            new TwigFunction('read_property_entity', [$this, 'readPropertyEntity']),
+            new TwigFunction('read_hide_entity_in_index', [$this, 'readHideEntityInIndex']),
         ];
     }
 
-    public function readHideResourceInIndex (?CrudAnnotation $annotation)
+    public function readHideEntityInIndex (?CrudAnnotation $annotation)
     {
         if (!$annotation || $annotation->showHideInIndex === false) {
             return '';
@@ -66,7 +63,7 @@ class CrudExtension extends AbstractExtension
      *
      * @return string|null
      */
-    public function readPropertyResource ($entity, string $property): ?string
+    public function readPropertyEntity ($entity, string $property): ?string
     {
         $data = null;
 

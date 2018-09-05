@@ -29,14 +29,14 @@ class Post
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Category", inversedBy="posts", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="Category", inversedBy="posts", cascade={"persist", "remove"})
      * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
      * @CrudAnnotation(showInIndex=false)
      */
     private $category;
 
     /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="posts", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="posts", cascade={"persist", "remove"})
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $user;
@@ -83,7 +83,7 @@ class Post
     private $updatedAt;
 
     /**
-     * @ORM\OneToMany(targetEntity="Comment", mappedBy="post", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="Comment", mappedBy="post", cascade={"persist", "remove"})
      * @ORM\OrderBy({"createdAt" = "DESC"})
      * @CrudAnnotation(showHideInIndex=true)
      */

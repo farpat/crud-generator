@@ -1,9 +1,9 @@
 {{ form_start(form) }}
 {{ form_rest(form) }}
 
-{% if resource.id is not null %}
-    <button class="btn btn-primary">Edit {{ resourceName }}</button>
+{% if entity.id is not null %}
+    <button class="btn btn-primary">Edit {{ resource }}</button>
 {% else %}
-    <button class="btn btn-success">Add {{ resourceName }}</button>
+    <button class="btn btn-success">Add {{ resource }}</button>
 {% endif %}
 {{ form_end(form) }}

@@ -2,10 +2,10 @@
 
 namespace App\Controller;
 
+use App\Utilities\Crud\CrudException;
 use App\Utilities\Crud\ResourceResolver;
 use Doctrine\Common\Persistence\ObjectManager;
 use Pagerfanta\Adapter\ArrayAdapter;
-use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{RedirectResponse, Request, Response};
@@ -18,123 +18,148 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class GeneralController extends AbstractController
 {
+
     /**
-     * @Route("/{resourceName}", name="general.index")
+     * Liste l'ensemble des ressources disponibles
+     * @Route("/_list", name="general.list", methods={"GET"})
+     * @param ResourceResolver $resolver
+     *
+     * @return Response
+     * @throws \Exception
+     */
+    public function list (ResourceResolver $resolver): Response
+    {
+        $resources = $resolver->getListOfResources();
+
+        return $this->render('general/list.html.twig', compact('resources'));
+    }
+
+    /**
+     * Liste l'ensemble des lignes de la ressource courante
+     * @Route("/{resource}", name="general.index")
      * @param ResourceResolver $resolver
      * @param Request $request
-     * @param string $resourceName
+     * @param string $resource
      *
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function index (ResourceResolver $resolver, Request $request, string $resourceName): Response
+    public function index (ResourceResolver $resolver, Request $request, string $resource): Response
     {
         if ($request->query->getInt('page') === 1) {
-            return $this->redirectToRoute('general.index', compact('resourceName'));
+            return $this->redirectToRoute('general.index', compact('resource'));
         }
 
-        $resolver->setResource($resourceName);
+        $resolver->setResource($resource);
         $repository = $resolver->resolveRepository();
         $properties = $resolver->getIndexProperties();
 
         $adapter = new ArrayAdapter($repository->findAll());
-        $resources = (new Pagerfanta($adapter))
+        $entities = (new Pagerfanta($adapter))
             ->setMaxPerPage(3)
             ->setCurrentPage($request->query->getInt('page', 1));
 
-        return $this->render('general/index.html.twig', compact('resources', 'properties', 'resourceName'));
+        return $this->render('general/index.html.twig', compact('entities', 'properties', 'resource'));
     }
 
     /**
-     * @Route("/{resourceName}/create", name="general.create", methods={"GET", "POST"})
+     * Création d'une ressource
+     * @Route("/{resource}/create", name="general.create", methods={"GET", "POST"})
      * @param ResourceResolver $resolver
      * @param Request $request
      * @param ObjectManager $manager
-     * @param string $resourceName
+     * @param string $resource
      *
      * @return Response
+     * @throws \ReflectionException
+     * @throws \Exception
      */
-    public function create (ResourceResolver $resolver, Request $request, ObjectManager $manager, string $resourceName): Response
+    public function create (ResourceResolver $resolver, Request $request, ObjectManager $manager, string $resource): Response
     {
-        $resolver->setResource($resourceName);
+        $resolver->setResource($resource);
 
-        $resource = $resolver->createEntity();
-        $form = $resolver->createFormBuilder($resource)->getForm();
+        $entity = $resolver->createEntity();
+        $form = $resolver->createFormBuilder($entity)->getForm();
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $manager->persist($resource);
+            $manager->persist($entity);
             $manager->flush();
 
 
-            $this->addFlash('success', 'Resource << ' . $resource->getName() . ' >> <strong>created</strong> with success!');
-            $this->addFlash('id', $resource->getId());
+            $this->addFlash('success', 'Resource << ' . $entity->getName() . ' >> <strong>created</strong> with success!');
+            $this->addFlash('id', $entity->getId());
 
-            return $this->redirectToRoute('general.index', compact('resourceName'));
+            return $this->redirectToRoute('general.index', compact('resource'));
         }
 
         $form = $form->createView();
-        return $this->render('general/create.html.twig', compact('form', 'resourceName', 'resource'));
+        return $this->render('general/create.html.twig', compact('form', 'resource', 'entity'));
     }
 
     /**
-     * @Route("/{resourceName}/{resourceId}/edit", name="general.edit", methods={"GET", "PUT"})
+     * Edition d'une ressource
+     * @Route("/{resource}/{resourceId}/edit", name="general.edit", methods={"GET", "PUT"})
      * @param ResourceResolver $resolver
      * @param Request $request
      * @param ObjectManager $manager
-     * @param string $resourceName
+     * @param string $resource
      *
      * @param int $resourceId
      *
      * @return Response
+     * @throws \ReflectionException
+     * @throws \Exception
      */
-    public function edit (ResourceResolver $resolver, Request $request, ObjectManager $manager, string $resourceName, int $resourceId): Response
+    public function edit (ResourceResolver $resolver, Request $request, ObjectManager $manager, string $resource, int $resourceId): Response
     {
-        $resolver->setResource($resourceName);
+        $resolver->setResource($resource);
 
-        $resource = $resolver->getEntity($resourceId);
-        $form = $resolver->createFormBuilder($resource)->getForm();
+        $entity = $resolver->getEntity($resourceId);
+        $form = $resolver->createFormBuilder($entity)->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $manager->persist($resource);
+            $manager->persist($entity);
             $manager->flush();
 
 
-            $this->addFlash('success', 'Resource << ' . $resource->getName() . ' >> <strong>updated</strong> with success!');
-            $this->addFlash('id', $resource->getId());
+            $this->addFlash('success', 'Resource << ' . $entity->getName() . ' >> <strong>updated</strong> with success!');
+            $this->addFlash('id', $entity->getId());
 
-            return $this->redirectToRoute('general.index', compact('resourceName'));
+            return $this->redirectToRoute('general.index', compact('resource'));
         }
 
         $form = $form->createView();
-        return $this->render('general/edit.html.twig', compact('form', 'resourceName', 'resource'));
+        return $this->render('general/edit.html.twig', compact('form', 'resource', 'entity'));
     }
 
     /**
-     * @Route("/{resourceName}/{resourceId}/destroy", name="general.destroy", methods={"DELETE"})
+     * Suppression d'une ressource
+     * @Route("/{resource}/{resourceId}/destroy", name="general.destroy", methods={"DELETE"})
      * @param ResourceResolver $resolver
      * @param Request $request
-     * @param string $resourceName
+     * @param ObjectManager $manager
+     * @param string $resource
      * @param int $resourceId
      *
      * @return RedirectResponse
      * @throws \Exception
      */
-    public function destroy (ResourceResolver $resolver, Request $request, ObjectManager $manager, string $resourceName, int $resourceId): RedirectResponse
+    public function destroy (ResourceResolver $resolver, Request $request, ObjectManager $manager, string $resource, int $resourceId): RedirectResponse
     {
         if ($this->isCsrfTokenValid('general.destroy.' . $resourceId, $request->request->get('_token'))) {
-            $resource = $resolver->setResource($resourceName)->getEntity($resourceId);
+            $entity = $resolver->setResource($resource)->getEntity($resourceId);
 
-            if ($resource) {
-                $manager->remove($resource);
+            if ($entity) {
+                $manager->remove($entity);
                 $manager->flush();
-                $this->addFlash('success', 'Resource << ' . $resource->getName() . ' >> <strong>deleted</strong> with success!');
+                $this->addFlash('success', 'Resource << ' . $entity->getName() . ' >> <strong>deleted</strong> with success!');
             }
         }
 
-        return $this->redirectToRoute('general.index', compact('resourceName'));
+        return $this->redirectToRoute('general.index', compact('resource'));
     }
 }

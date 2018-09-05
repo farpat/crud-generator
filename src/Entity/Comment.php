@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Utilities\Crud\CrudAnnotation;
 use Symfony\Component\Validator\Constraints as Assert;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -22,6 +23,7 @@ class Comment
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @CrudAnnotation(showInIndex=false)
      */
     private $id;
 
@@ -53,11 +55,12 @@ class Comment
      * @var \DateTime
      *
      * @ORM\Column(name="createdAt", type="datetime")
+     * @CrudAnnotation(showInIndex=false)
      */
     private $createdAt;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Post", inversedBy="comments", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="Post", inversedBy="comments", cascade={"persist", "remove"})
      */
     private $post;
 
