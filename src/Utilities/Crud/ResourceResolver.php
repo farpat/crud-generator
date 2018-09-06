@@ -32,17 +32,17 @@ class ResourceResolver
     /**
      * @var FormFactoryInterface
      */
-    private $formFactoryrm;
+    private $formFactory;
     /**
      * @var ContainerInterface
      */
     private $container;
 
-    public function __construct (ObjectManager $manager, Reader $reader, FormFactoryInterface $formFactoryrm, ContainerInterface $container)
+    public function __construct (ObjectManager $manager, Reader $reader, FormFactoryInterface $formFactory, ContainerInterface $container)
     {
         $this->manager = $manager;
         $this->reader = $reader;
-        $this->formFactoryrm = $formFactoryrm;
+        $this->formFactory = $formFactory;
         $this->container = $container;
     }
 
@@ -83,11 +83,11 @@ class ResourceResolver
             /** @var CrudAnnotation $annotation */
             $annotation = $this->reader->getPropertyAnnotation($property, CrudAnnotation::class);
 
-            if (!$annotation || ($type === 'index' && $annotation->showInIndex !== false)) {
+            if ($type === 'index' && (!$annotation || $annotation->showInIndex !== false)) {
                 $properties[$property->name] = $annotation;
-            } elseif ($annotation && $type === 'create' && $annotation->showInCreate !== false) {
+            } elseif ($type === 'create' && $annotation && $annotation->showInCreate !== false) {
                 $properties[$property->name] = $annotation;
-            } elseif ($annotation && $type === 'edit' && $annotation->showInEdit !== false) {
+            } elseif ($type === 'edit'  && $annotation && $annotation->showInEdit !== false) {
                 $properties[$property->name] = $annotation;
             }
         }
@@ -143,7 +143,7 @@ class ResourceResolver
      */
     public function createFormBuilder ($data): FormBuilderInterface
     {
-        $builder = $this->formFactoryrm->createBuilder(FormType::class, $data)->setMethod($data->getId() ? 'PUT' : 'POST');
+        $builder = $this->formFactory->createBuilder(FormType::class, $data)->setMethod($data->getId() ? 'PUT' : 'POST');
         $properties = array_keys($this->getProperties($data->getId() ? 'edit' : 'create'));
         foreach ($properties as $property) {
             $builder->add($property);
@@ -154,6 +154,7 @@ class ResourceResolver
 
     /**
      * Récupère une entité (à partir de $this->resource et $resourceId passé en paramètre)
+     *
      * @param int $resourceId Id de la ressource
      *
      * @return null|object
@@ -193,7 +194,7 @@ class ResourceResolver
 
         $return = [];
 
-        foreach($entities as $entity) {
+        foreach ($entities as $entity) {
             $resource = substr(lcfirst($entity), 0, -4);
             $return[$resource] = $this->setResource($resource)->resolveRepository()
                 ->createQueryBuilder('r')
