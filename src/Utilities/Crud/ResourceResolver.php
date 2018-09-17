@@ -136,7 +136,7 @@ class ResourceResolver
 
     /**
      *
-     * @param $data Entité à hydrater par le formulaire
+     * @param mixed $data Entité à hydrater par le formulaire
      *
      * @return FormBuilderInterface
      * @throws \ReflectionException

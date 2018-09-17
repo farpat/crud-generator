@@ -22,6 +22,7 @@ class GeneralController extends AbstractController
     /**
      * Liste l'ensemble des ressources disponibles
      * @Route("/_list", name="general.list", methods={"GET"})
+     *
      * @param ResourceResolver $resolver
      *
      * @return Response
@@ -37,6 +38,7 @@ class GeneralController extends AbstractController
     /**
      * Liste l'ensemble des lignes de la ressource courante
      * @Route("/{resource}", name="general.index")
+     *
      * @param ResourceResolver $resolver
      * @param Request $request
      * @param string $resource
@@ -48,7 +50,8 @@ class GeneralController extends AbstractController
     public function index (ResourceResolver $resolver, Request $request, string $resource): Response
     {
         if ($request->query->getInt('page') === 1) {
-            return $this->redirectToRoute('general.index', compact('resource'));
+            $currentRoute = $request->attributes->get('_route');
+            return $this->redirectToRoute($currentRoute, compact('resource'));
         }
 
         $resolver->setResource($resource);
@@ -66,6 +69,7 @@ class GeneralController extends AbstractController
     /**
      * Création d'une ressource
      * @Route("/{resource}/create", name="general.create", methods={"GET", "POST"})
+     *
      * @param ResourceResolver $resolver
      * @param Request $request
      * @param ObjectManager $manager
@@ -101,6 +105,7 @@ class GeneralController extends AbstractController
     /**
      * Edition d'une ressource
      * @Route("/{resource}/{resourceId}/edit", name="general.edit", methods={"GET", "PUT"})
+     *
      * @param ResourceResolver $resolver
      * @param Request $request
      * @param ObjectManager $manager
@@ -139,6 +144,7 @@ class GeneralController extends AbstractController
     /**
      * Suppression d'une ressource
      * @Route("/{resource}/{resourceId}/destroy", name="general.destroy", methods={"DELETE"})
+     *
      * @param ResourceResolver $resolver
      * @param Request $request
      * @param ObjectManager $manager
