@@ -24,8 +24,8 @@ class User implements UserInterface
     private $id;
 
     /**
-     * @ORM\OneToMany(targetEntity="Post", mappedBy="user", cascade={"persist", "remove"})
-     * @CrudAnnotation(showInEdit=false, showInCreate=false)
+     * @ORM\OneToMany(targetEntity="Post", mappedBy="user")
+     * @CrudAnnotation(showHideInIndex=true)
      */
     private $posts;
 
@@ -50,7 +50,7 @@ class User implements UserInterface
      *
      * @return int
      */
-    public function getId()
+    public function getId ()
     {
         return $this->id;
     }
@@ -62,7 +62,7 @@ class User implements UserInterface
      *
      * @return User
      */
-    public function setUsername($username)
+    public function setUsername ($username)
     {
         $this->username = $username;
 
@@ -74,7 +74,7 @@ class User implements UserInterface
      *
      * @return string
      */
-    public function getUsername()
+    public function getUsername ()
     {
         return $this->username;
     }
@@ -86,7 +86,7 @@ class User implements UserInterface
      *
      * @return User
      */
-    public function setPassword($password)
+    public function setPassword ($password)
     {
         $this->password = $password;
 
@@ -98,7 +98,7 @@ class User implements UserInterface
      *
      * @return string
      */
-    public function getPassword()
+    public function getPassword ()
     {
         return $this->password;
     }
@@ -117,9 +117,9 @@ class User implements UserInterface
      * and populated in any number of different ways when the user object
      * is created.
      *
-     * @return array (Role|string)[] The user roles
+     * @return (Role|string)[] The user roles
      */
-    public function getRoles()
+    public function getRoles ()
     {
         return [
             'ROLE_ADMIN'
@@ -133,7 +133,7 @@ class User implements UserInterface
      *
      * @return string|null The salt
      */
-    public function getSalt()
+    public function getSalt ()
     {
         return null;
     }
@@ -144,49 +144,16 @@ class User implements UserInterface
      * This is important if, at any given point, sensitive information like
      * the plain-text password is stored on this object.
      */
-    public function eraseCredentials()
+    public function eraseCredentials ()
     {
     }
+
     /**
      * Constructor
      */
-    public function __construct()
+    public function __construct ()
     {
-        $this->user = new \Doctrine\Common\Collections\ArrayCollection();
-    }
-
-    /**
-     * Add user
-     *
-     * @param \App\Entity\Post $user
-     *
-     * @return User
-     */
-    public function addUser(\App\Entity\Post $user)
-    {
-        $this->user[] = $user;
-
-        return $this;
-    }
-
-    /**
-     * Remove user
-     *
-     * @param \App\Entity\Post $user
-     */
-    public function removeUser(\App\Entity\Post $user)
-    {
-        $this->user->removeElement($user);
-    }
-
-    /**
-     * Get user
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getUser()
-    {
-        return $this->user;
+        $this->posts = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -196,9 +163,13 @@ class User implements UserInterface
      *
      * @return User
      */
-    public function addPost(\App\Entity\Post $post)
+    public function addPost (\App\Entity\Post $post)
     {
-        $this->posts[] = $post;
+        if (!$this->posts->contains($post)) {
+            $this->posts[] = $post;
+
+            $post->setUser($this);
+        }
 
         return $this;
     }
@@ -208,9 +179,15 @@ class User implements UserInterface
      *
      * @param \App\Entity\Post $post
      */
-    public function removePost(\App\Entity\Post $post)
+    public function removePost (\App\Entity\Post $post)
     {
-        $this->posts->removeElement($post);
+        if ($this->posts->contains($post)) {
+            $this->posts->removeElement($post);
+
+            if ($post->getUser() === $this) {
+                $post->setUser(null);
+            }
+        }
     }
 
     /**
@@ -218,7 +195,7 @@ class User implements UserInterface
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getPosts()
+    public function getPosts ()
     {
         return $this->posts;
     }

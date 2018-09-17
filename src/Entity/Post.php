@@ -296,7 +296,13 @@ class Post
      */
     public function removeComment (\App\Entity\Comment $comment)
     {
-        $this->comments->removeElement($comment);
+        if ($this->comments->contains($comment)) {
+            $this->comments->removeElement($comment);
+
+            if ($comment->getPost() === $this) {
+                $comment->setPost(null);
+            }
+        }
     }
 
     /**

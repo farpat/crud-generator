@@ -129,8 +129,12 @@ class Category
      */
     public function addPost (\App\Entity\Post $post)
     {
-        $this->posts[] = $post;
-        $this->postCount++;
+        if (!$this->posts->contains($post)) {
+            $this->posts[] = $post;
+            $this->postCount++;
+
+            $post->setCategory($this);
+        }
 
         return $this;
     }
@@ -174,8 +178,13 @@ class Category
      */
     public function removePost (\App\Entity\Post $post)
     {
-        if ($this->posts->removeElement($post)) {
+        if ($this->posts->contains($post)) {
+            $this->posts->removeElement($post);
             $this->postCount--;
+
+            if ($post->getCategory() === $this) {
+                $post->setCategory(null);
+            }
         }
     }
 
@@ -184,7 +193,8 @@ class Category
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getPosts ()
+    public
+    function getPosts ()
     {
         return $this->posts;
     }

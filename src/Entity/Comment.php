@@ -195,10 +195,6 @@ class Comment
         return $this->post;
     }
 
-    public function getGravatar ()
-    {
-        return "https://www.gravatar.com/avatar/" . md5($this->email) . '?d=mm&s=100';
-    }
 
     public function __toString ()
     {
