@@ -89,6 +89,9 @@
     "egulias/email-validator": {
         "version": "2.1.5"
     },
+    "facebook/webdriver": {
+        "version": "1.6.0"
+    },
     "fig/link-util": {
         "version": "1.0.0"
     },
@@ -269,13 +272,16 @@
     "symfony/orm-pack": {
         "version": "v1.0.5"
     },
+    "symfony/panther": {
+        "version": "v0.1.0"
+    },
     "symfony/phpunit-bridge": {
         "version": "4.1",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "master",
             "version": "4.1",
-            "ref": "1a47f76dcd9d5d4da1fab54fb15450bae3704c5e"
+            "ref": "b14c7f62fabeedf256d3211b0f704402b5530ba1"
         }
     },
     "symfony/polyfill-intl-icu": {
@@ -339,7 +345,7 @@
         }
     },
     "symfony/test-pack": {
-        "version": "v1.0.2"
+        "version": "v1.0.3"
     },
     "symfony/translation": {
         "version": "3.3",

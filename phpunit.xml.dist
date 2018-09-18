@@ -14,19 +14,19 @@
         <env name="APP_DEBUG" value="1" />
         <env name="APP_SECRET" value="s$cretf0rt3st" />
         <env name="SHELL_VERBOSITY" value="-1" />
-        <env name="DATABASE_URL" value="mysql://homestead:secret@127.0.0.1/symfony" />
+        <env name="DATABASE_URL" value="sqlite://memory" />
         <!-- define your env variables for the test env here -->
     </php>
 
     <testsuites>
         <testsuite name="Project Test Suite">
-            <directory>tests/</directory>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
 
     <filter>
         <whitelist>
-            <directory>./src/</directory>
+            <directory>src</directory>
         </whitelist>
     </filter>
 

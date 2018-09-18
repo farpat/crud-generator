@@ -2,14 +2,24 @@
 
 namespace App\Tests\Utilities\Crud;
 
+use App\DataFixtures\AppFixtures;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Utilities\Crud\CrudAnnotation;
 use App\Utilities\Crud\CrudException;
 use App\Utilities\Crud\ResourceResolver;
 use Doctrine\Common\Annotations\Reader;
+use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Tools\SchemaTool;
+use Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class ResourceResolverTest extends KernelTestCase
 {
@@ -21,17 +31,32 @@ class ResourceResolverTest extends KernelTestCase
     /**
      * @var string
      */
-    private $entityDir;
+    private static $entityDir;
+
+    /** @var bool */
+    private static $migrated;
 
     protected function setUp ()
     {
         parent::setUp();
 
-        self::bootKernel();
+        if (!self::$migrated) {
+            $kernel = self::bootKernel();
+            $application = new Application($kernel);
+            $application->setAutoExit(false);
+            $application->run(new StringInput('doctrine:schema:update --force'));
+            $application->run(new StringInput('doctrine:fixtures:load --no-interaction'));
+            self::$entityDir = self::$container->getParameter('kernel.project_dir') . '/src/Entity';
 
-        $this->entityDir = self::$container->getParameter('kernel.project_dir') . '/src/Entity';
+            self::$migrated = true;
+        }
 
         $this->resolver = self::$container->get(ResourceResolver::class);
+    }
+
+    protected function tearDown ()
+    {
+        //pour avoir le kernel qui ne reboot jamais !!
     }
 
     /** @test */
@@ -87,10 +112,9 @@ class ResourceResolverTest extends KernelTestCase
     /** @test */
     public function testLegacyGetListOfResources ()
     {
-
         $resources = $this->resolver->getListOfResources();
 
-        $resourcesInDir = array_diff(scandir($this->entityDir), ['.', '..', '.gitignore']);
+        $resourcesInDir = array_diff(scandir(self::$entityDir), ['.', '..', '.gitignore']);
 
         $this->assertEquals(count($resourcesInDir), count($resources));
         foreach ($resourcesInDir as $resourceInDir) {
