@@ -2,200 +2,119 @@
 
 namespace App\Entity;
 
-use App\Utilities\Crud\CrudAnnotation;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Category
- *
- * @ORM\Table(name="category")
  * @ORM\Entity(repositoryClass="App\Repository\CategoryRepository")
- * @ORM\HasLifecycleCallbacks()
  */
 class Category
 {
-
     /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @CrudAnnotation(name="Identifiant", showInCreate=false, showInEdit=false)
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
      */
     private $id;
 
     /**
-     * @ORM\OneToMany(targetEntity="Post", mappedBy="category", cascade={"persist", "remove"})
-     * @CrudAnnotation(showInIndex=false)
-     */
-    private $posts;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=255)
-     * @CrudAnnotation(name="Libellé")
+     * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="slug", type="string", length=255, unique=true)
+     * @ORM\Column(type="string", length=255)
      */
     private $slug;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="post_count", type="integer")
-     * @CrudAnnotation(name="Nombre d'article(s)", showInCreate=false, showInEdit=false)
+     * @ORM\Column(type="integer")
      */
-    private $postCount = 0;
+    private $posts_count = 0;
 
     /**
-     * Constructor
+     * @ORM\OneToMany(targetEntity="App\Entity\Post", mappedBy="category", cascade={"persist"})
      */
-    public function __construct ()
+    private $posts;
+
+    public function __construct()
     {
-        $this->posts = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->posts = new ArrayCollection();
     }
 
-    /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId ()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * Get name
-     *
-     * @return string
-     */
-    public function getName ()
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    /**
-     * Set name
-     *
-     * @param string $name
-     *
-     * @return Category
-     */
-    public function setName ($name)
+    public function setName(string $name): self
     {
         $this->name = $name;
 
         return $this;
     }
 
-    /**
-     * Get slug
-     *
-     * @return string
-     */
-    public function getSlug ()
+    public function getSlug(): ?string
     {
         return $this->slug;
     }
 
-    /**
-     * Set slug
-     *
-     * @param string $slug
-     *
-     * @return Category
-     */
-    public function setSlug ($slug)
+    public function setSlug(string $slug): self
     {
         $this->slug = $slug;
 
         return $this;
     }
 
+    public function getPostsCount(): ?int
+    {
+        return $this->posts_count;
+    }
+
+    public function setPostsCount(int $posts_count): self
+    {
+        $this->posts_count = $posts_count;
+
+        return $this;
+    }
+
     /**
-     * Add post
-     *
-     * @param \App\Entity\Post $post
-     *
-     * @return Category
+     * @return Collection|Post[]
      */
-    public function addPost (\App\Entity\Post $post)
+    public function getPosts(): Collection
+    {
+        return $this->posts;
+    }
+
+    public function addPost(Post $post): self
     {
         if (!$this->posts->contains($post)) {
             $this->posts[] = $post;
-            $this->postCount++;
-
             $post->setCategory($this);
+            $this->posts_count++;
         }
 
         return $this;
     }
 
-    /**
-     * Get postCount
-     *
-     * @return int
-     */
-    public function getPostCount ()
-    {
-        return $this->postCount;
-    }
-
-    /**
-     * Set postCount
-     *
-     * @param integer $postCount
-     *
-     * @return Category
-     */
-    public function setPostCount ($postCount)
-    {
-        $this->postCount = $postCount;
-
-        return $this;
-    }
-
-    /**
-     * @ORM\PrePersist
-     */
-    public function updatePostCount ()
-    {
-        $this->postCount = $this->posts->count();
-    }
-
-    /**
-     * Remove post
-     *
-     * @param \App\Entity\Post $post
-     */
-    public function removePost (\App\Entity\Post $post)
+    public function removePost(Post $post): self
     {
         if ($this->posts->contains($post)) {
             $this->posts->removeElement($post);
-            $this->postCount--;
-
+            // set the owning side to null (unless already changed)
             if ($post->getCategory() === $this) {
                 $post->setCategory(null);
             }
-        }
-    }
 
-    /**
-     * Get posts
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public
-    function getPosts ()
-    {
-        return $this->posts;
+            $this->posts_count--;
+        }
+
+        return $this;
     }
 }

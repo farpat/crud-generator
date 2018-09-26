@@ -2,199 +2,109 @@
 
 namespace App\Entity;
 
-use App\Utilities\Crud\CrudAnnotation;
-use Symfony\Component\Validator\Constraints as Assert;
-
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Comment
- *
- * @ORM\Table(name="comment")
- * @ORM\HasLifecycleCallbacks()
  * @ORM\Entity(repositoryClass="App\Repository\CommentRepository")
  */
 class Comment
 {
-
     /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @CrudAnnotation(showInIndex=false)
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
      */
     private $id;
 
     /**
-     * @var string
-     * @Assert\NotBlank()
-     * @ORM\Column(name="username", type="string", length=255)
+     * @ORM\Column(type="string", length=255)
      */
     private $username;
 
     /**
-     * @var string
-     *
-     * @Assert\Email()
-     * @Assert\NotBlank())
-     *
-     * @ORM\Column(name="email", type="string", length=255)
+     * @ORM\Column(type="string", length=255)
      */
     private $email;
 
     /**
-     * @var string
-     * @Assert\NotBlank()
-     * @ORM\Column(name="content", type="text")
+     * @ORM\Column(type="text")
      */
     private $content;
 
     /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="createdAt", type="datetime")
-     * @CrudAnnotation(showInIndex=false)
+     * @ORM\Column(type="datetime")
      */
-    private $createdAt;
+    private $created_at;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Post", inversedBy="comments", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\Post", inversedBy="comments")
      */
     private $post;
 
-
-    /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId ()
+    public function getId (): ?int
     {
         return $this->id;
     }
 
-    /**
-     * Set username
-     *
-     * @param string $username
-     *
-     * @return Comment
-     */
-    public function setUsername ($username)
+    public function getUsername (): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername (string $username): self
     {
         $this->username = $username;
 
         return $this;
     }
 
-    /**
-     * Get username
-     *
-     * @return string
-     */
-    public function getUsername ()
+    public function getEmail (): ?string
     {
-        return $this->username;
+        return $this->email;
     }
 
-    /**
-     * Set email
-     *
-     * @param string $email
-     *
-     * @return Comment
-     */
-    public function setEmail ($email)
+    public function setEmail (string $email): self
     {
         $this->email = $email;
 
         return $this;
     }
 
-    /**
-     * Get email
-     *
-     * @return string
-     */
-    public function getEmail ()
+    public function getContent (): ?string
     {
-        return $this->email;
+        return $this->content;
     }
 
-    /**
-     * Set content
-     *
-     * @param string $content
-     *
-     * @return Comment
-     */
-    public function setContent ($content)
+    public function setContent (string $content): self
     {
         $this->content = $content;
 
         return $this;
     }
 
-    /**
-     * Get content
-     *
-     * @return string
-     */
-    public function getContent ()
+    public function getCreatedAt (): ?\DateTimeInterface
     {
-        return $this->content;
+        return $this->created_at;
     }
 
-    /**
-     * Set createdAt
-     *
-     * @param \DateTime $createdAt
-     *
-     * @return Comment
-     */
-    public function setCreatedAt ($createdAt)
+    public function setCreatedAt (\DateTimeInterface $created_at): self
     {
-        $this->createdAt = $createdAt;
+        $this->created_at = $created_at;
 
         return $this;
     }
 
-    /**
-     * Get createdAt
-     *
-     * @return \DateTime
-     */
-    public function getCreatedAt ()
+    public function getPost (): ?Post
     {
-        return $this->createdAt;
+        return $this->post;
     }
 
-    /**
-     * Set post
-     *
-     * @param \App\Entity\Comment $post
-     *
-     * @return Comment
-     */
-    public function setPost (\App\Entity\Post $post = null)
+    public function setPost (?Post $post): self
     {
         $this->post = $post;
 
         return $this;
     }
-
-    /**
-     * Get post
-     *
-     * @return \App\Entity\Comment
-     */
-    public function getPost ()
-    {
-        return $this->post;
-    }
-
 
     public function __toString ()
     {

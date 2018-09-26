@@ -37,12 +37,10 @@ class AppFixtures extends Fixture
 
             for ($j = 0; $j < 10; $j++) {
                 $category->addPost($post = $this->createPost());
-                $post->setUser($users[random_int(0, 19)]);
-                $post->setCategory($category);
+                $post->setUser($users[array_rand($users)]);
 
                 for ($k = 0; $k < 10; $k++) {
                     $post->addComment($comment = $this->createComment());
-                    $comment->setPost($post);
                 }
             }
 
@@ -54,9 +52,10 @@ class AppFixtures extends Fixture
 
     private function createUser (): User
     {
-        $user = (new User)
-            ->setUsername($this->faker->userName);
-        $user->setPassword($this->encoder->encodePassword($user, 'secret'));
+        $user = new User;
+        $user->setUsername($this->faker->userName);
+        $password = $this->encoder->encodePassword($user, 'secret');
+        $user->setPassword($password);
 
         return $user;
     }
@@ -65,13 +64,13 @@ class AppFixtures extends Fixture
     {
         return (new Category)
             ->setName($this->faker->words(3, true))
-            ->setSlug($this->faker->slug)
-            ->setPostCount(10);
+            ->setSlug($this->faker->slug);
     }
 
     private function createPost (): Post
     {
-        return (new Post)->setSlug($this->faker->slug)
+        return (new Post)
+            ->setSlug($this->faker->slug)
             ->setName($this->faker->sentence)
             ->setContent($this->faker->paragraph)
             ->setCreatedAt(new \DateTime('-' . random_int(1, 20) . ' months'))

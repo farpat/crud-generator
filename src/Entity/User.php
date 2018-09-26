@@ -2,105 +2,101 @@
 
 namespace App\Entity;
 
-use App\Utilities\Crud\CrudAnnotation;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * User
- *
- * @ORM\Table(name="user")
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
 class User implements UserInterface
 {
     /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
      */
     private $id;
 
     /**
-     * @ORM\OneToMany(targetEntity="Post", mappedBy="user")
-     * @CrudAnnotation(showHideInIndex=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Post", mappedBy="user")
      */
     private $posts;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="username", type="string", length=255, unique=true)
+     * @ORM\Column(type="string", length=255)
      */
     private $username;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="password", type="string", length=255)
-     * @CrudAnnotation(showInIndex=false)
+     * @ORM\Column(type="string", length=255)
      */
     private $password;
 
+    public function __construct()
+    {
+        $this->posts = new ArrayCollection();
+    }
 
-    /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId ()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
     /**
-     * Set username
-     *
-     * @param string $username
-     *
-     * @return User
+     * @return Collection|Post[]
      */
-    public function setUsername ($username)
+    public function getPosts(): Collection
+    {
+        return $this->posts;
+    }
+
+    public function addPost(Post $post): self
+    {
+        if (!$this->posts->contains($post)) {
+            $this->posts[] = $post;
+            $post->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePost(Post $post): self
+    {
+        if ($this->posts->contains($post)) {
+            $this->posts->removeElement($post);
+            // set the owning side to null (unless already changed)
+            if ($post->getUser() === $this) {
+                $post->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): self
     {
         $this->username = $username;
 
         return $this;
     }
 
-    /**
-     * Get username
-     *
-     * @return string
-     */
-    public function getUsername ()
+    public function getPassword(): ?string
     {
-        return $this->username;
+        return $this->password;
     }
 
-    /**
-     * Set password
-     *
-     * @param string $password
-     *
-     * @return User
-     */
-    public function setPassword ($password)
+    public function setPassword(string $password): self
     {
         $this->password = $password;
 
         return $this;
-    }
-
-    /**
-     * Get password
-     *
-     * @return string
-     */
-    public function getPassword ()
-    {
-        return $this->password;
     }
 
     /**
@@ -121,9 +117,7 @@ class User implements UserInterface
      */
     public function getRoles ()
     {
-        return [
-            'ROLE_ADMIN'
-        ];
+        return ['ROLE_ADMIN'];
     }
 
     /**
@@ -135,7 +129,7 @@ class User implements UserInterface
      */
     public function getSalt ()
     {
-        return null;
+        return '++M7pKH03uCjILfNpoj+3Wdy1HN/WaVRmtwRfD2+';
     }
 
     /**
@@ -146,58 +140,7 @@ class User implements UserInterface
      */
     public function eraseCredentials ()
     {
-    }
-
-    /**
-     * Constructor
-     */
-    public function __construct ()
-    {
-        $this->posts = new \Doctrine\Common\Collections\ArrayCollection();
-    }
-
-    /**
-     * Add post
-     *
-     * @param \App\Entity\Post $post
-     *
-     * @return User
-     */
-    public function addPost (\App\Entity\Post $post)
-    {
-        if (!$this->posts->contains($post)) {
-            $this->posts[] = $post;
-
-            $post->setUser($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Remove post
-     *
-     * @param \App\Entity\Post $post
-     */
-    public function removePost (\App\Entity\Post $post)
-    {
-        if ($this->posts->contains($post)) {
-            $this->posts->removeElement($post);
-
-            if ($post->getUser() === $this) {
-                $post->setUser(null);
-            }
-        }
-    }
-
-    /**
-     * Get posts
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getPosts ()
-    {
-        return $this->posts;
+        // TODO: Implement eraseCredentials() method.
     }
 
     public function __toString ()
