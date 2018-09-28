@@ -2,13 +2,12 @@
 
 namespace App\Utilities\Crud;
 
-use Throwable;
 
 class CrudException extends \Exception
 {
-    public function __construct (string $resource, $message = "", $code = 0, Throwable $previous = null)
+    public function __construct (string $resource)
     {
         $message = 'The class ' . $resource . ' doesn\'t exists! Please create this to resolve that.';
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message, 0, null);
     }
 }

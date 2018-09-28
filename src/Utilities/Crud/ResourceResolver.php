@@ -53,7 +53,7 @@ class ResourceResolver
      */
     public function setResource (string $resource): ResourceResolver
     {
-        $this->resource = ucfirst($resource);;
+        $this->resource = implode(array_map('ucfirst', explode('-', $resource)));
         return $this;
     }
 
@@ -173,7 +173,7 @@ class ResourceResolver
     public function resolveRepository (): ObjectRepository
     {
         $this->verifyExistenceOfClasses();
-        return $this->manager->getRepository('App\Entity\\' . $this->resource);
+        return $this->manager->getRepository($this->resolveEntityClassName());
     }
 
     /**

@@ -57,6 +57,30 @@ class CrudExtension extends AbstractExtension
         return !$annotation ? $key : ($annotation->name ?? $key);
     }
 
+    private function getData ($entity, string $property)
+    {
+        $getter = 'get' . ucfirst(implode(array_map('ucfirst', explode('_', $property))));
+
+        return is_callable($getter) ? call_user_func([$entity, $getter]) : null;
+    }
+
+    private function translateData ($data): string
+    {
+        if ($data instanceof \DateTimeInterface) { //type date
+            return $data->format($this->container->getParameter('twig_format_date'));
+        } else {
+            $class = get_class($data);
+
+            if (strpos($class, 'App\Entity\\') !== false) { //type entité
+                return $data->__toString();
+            } elseif ($class === 'Doctrine\ORM\PersistentCollection') {
+                $html = '';
+                foreach ($data as $item) $html .= '<li>' . $item->__toString() . '</li>';
+                return '<ul>' . $html . '</ul>';
+            }
+        }
+    }
+
     /**
      * @param $entity
      * @param string $property
@@ -65,33 +89,7 @@ class CrudExtension extends AbstractExtension
      */
     public function readPropertyEntity ($entity, string $property): ?string
     {
-        $data = null;
-
-        $getter = 'get' . ucfirst($property);
-        if (is_callable([$entity, $getter])) {
-            $data = call_user_func([$entity, $getter]);
-        }
-
-        if ($data instanceof \DateTimeInterface) {
-            $data = $data->format($this->container->getParameter('twig_format_date'));
-        }
-
-        if (is_object($data)) {
-            $class = get_class($data);
-
-            if (strpos($class, 'App\Entity\\') !== false) {
-                $data = $data->__toString();
-            } elseif ($class === 'Doctrine\ORM\PersistentCollection') {
-                $html = '<ul>';
-                /** @var PersistentCollection $data */
-                foreach ($data as $item) {
-                    $html .= '<li>' . $item->__toString() . '</li>';
-                }
-                $html .= '</ul>';
-                $data = $html;
-            }
-        }
-
-        return $data;
+        $data = $this->getData($entity, $property);
+        return $this->translateData($data);
     }
 }
