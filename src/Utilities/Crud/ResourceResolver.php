@@ -83,11 +83,11 @@ class ResourceResolver
             /** @var CrudAnnotation $annotation */
             $annotation = $this->reader->getPropertyAnnotation($property, CrudAnnotation::class);
 
-            if ($type === 'index' && (!$annotation || $annotation->showInIndex !== false)) {
+            if ($type === 'index' && (!$annotation || $annotation->showInIndex !== false)) { //si pas d'annotation par défaut on affiche
                 $properties[$property->name] = $annotation;
-            } elseif ($type === 'create' && $annotation && $annotation->showInCreate !== false) {
+            } elseif ($type === 'create' && $annotation && $annotation->showInCreate !== false) { //si pas d'annotation par défaut on n'affiche pas
                 $properties[$property->name] = $annotation;
-            } elseif ($type === 'edit'  && $annotation && $annotation->showInEdit !== false) {
+            } elseif ($type === 'edit'  && $annotation && $annotation->showInEdit !== false) { //si pas d'annotation par défaut on n'affiche pas
                 $properties[$property->name] = $annotation;
             }
         }

@@ -37,26 +37,27 @@
         </thead>
         <tbody>
         {% for entity in entities %}
-            <tr class="{{ id and id.0 is same as (read_property_entity(entity, 'id')) ? 'table-primary':'' }}">
-                {% for property, annotation in properties %}
-                    <td>
-                        {{ read_hide_entity_in_index(annotation) | raw }}
-                        <div>
-                            {{ read_property_entity(entity, property) | raw }}
-                        </div>
-                    </td>
-                {% endfor %}
-                <td>
-                    <a class="btn btn-primary"
-                       href="{{ path('general.edit', {'resource' : resource, 'resourceId': entity.id}) }}">Edit</a>
-                    <form action="{{ path('general.destroy', {'resource': resource, 'resourceId': entity.id}) }}"
-                          method="POST">
-                        <input type="hidden" name="_method" value="DELETE">
-                        <input type="hidden" name="_token" value="{{ csrf_token('general.destroy.' ~ entity.id) }}">
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
-                </td>
-            </tr>
+        <tr class="{{ id and id.0 is same as (read_property_entity(entity, 'id')) ? 'table-primary':'' }}">
+            {% for property, annotation in properties %}
+            <td>
+                {% set button = read_hide_entity_in_index(annotation) %}
+                {{ button | raw }}
+                <div {{ button ? 'style="display:none;"':'' }}>
+                    {{ read_property_entity(entity, property) | raw }}
+                </div>
+            </td>
+        {% endfor %}
+            <td>
+                <a class="btn btn-primary"
+                   href="{{ path('general.edit', {'resource' : resource, 'resourceId': entity.id}) }}">Edit</a>
+                <form action="{{ path('general.destroy', {'resource': resource, 'resourceId': entity.id}) }}"
+                      method="POST">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <input type="hidden" name="_token" value="{{ csrf_token('general.destroy.' ~ entity.id) }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
         {% endfor %}
         </tbody>
     </table>
@@ -69,21 +70,21 @@
 {% block javascripts %}
     <script>
         const hideButtons = document.querySelectorAll('.btn-hide');
-        hideButtons.forEach(function(btn) {
-           btn.addEventListener('click', function(e) {
-               e.preventDefault();
+        hideButtons.forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
 
-               if (btn.dataset.shown == 0) {
-                   btn.innerText = 'Show';
-                   btn.nextElementSibling.style.display = 'none';
-                   btn.dataset.shown = 1;
-               }
-               else {
-                   btn.innerText = 'Hide';
-                   btn.nextElementSibling.style.display = 'block';
-                   btn.dataset.shown = 0;
-               }
-           });
+                if (btn.dataset.shown == 0) {
+                    btn.innerText = 'Show';
+                    btn.nextElementSibling.style.display = 'none';
+                    btn.dataset.shown = 1;
+                }
+                else {
+                    btn.innerText = 'Hide';
+                    btn.nextElementSibling.style.display = 'block';
+                    btn.dataset.shown = 0;
+                }
+            });
         });
     </script>
 {% endblock %}

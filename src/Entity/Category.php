@@ -31,6 +31,7 @@ class Category
 
     /**
      * @ORM\Column(type="integer")
+     * @CrudAnnotation(name="Posts count")
      */
     private $posts_count = 0;
 

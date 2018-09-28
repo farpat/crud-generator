@@ -31,7 +31,7 @@ class CrudExtension extends AbstractExtension
         return [
             new TwigFunction('read_property_name', [$this, 'readPropertyName']),
             new TwigFunction('read_property_entity', [$this, 'readPropertyEntity']),
-            new TwigFunction('read_hide_entity_in_index', [$this, 'readHideEntityInIndex']),
+            new TwigFunction('read_hide_entity_in_index', [$this, 'readHideEntityInIndex'], ['is_safe' => ['html']]),
         ];
     }
 
@@ -41,7 +41,7 @@ class CrudExtension extends AbstractExtension
             return '';
         }
 
-        return '<a href="#" class="btn-hide" data-shown="0">Hide</a>';
+        return '<a href="#" class="btn-hide" data-shown="1">Show</a>';
     }
 
     /**
