@@ -10,7 +10,7 @@ Le code le plus important se trouve dans :
 
 # Utilisation
 - `git clone ...`
-- `bin/console doctrine:migrations:migrate`
-- `bin/console doctrine:fixtures:load`
+- `bin/console doctrine:migrations:migrate -n`
+- `bin/console doctrine:fixtures:load -n`
 - `bin/console server:run`
 - Il faut se rendre sur http://localhost:8000/general/_list pour jouer avec (et se laisser guider)
