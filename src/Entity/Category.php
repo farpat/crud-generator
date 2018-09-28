@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Utilities\Crud\CrudAnnotation;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -35,6 +36,7 @@ class Category
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Post", mappedBy="category", cascade={"persist"})
+     * @CrudAnnotation(showHideInIndex=true)
      */
     private $posts;
 
@@ -116,5 +118,10 @@ class Category
         }
 
         return $this;
+    }
+
+    public function __toString ()
+    {
+        return $this->getName();
     }
 }

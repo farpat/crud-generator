@@ -38,7 +38,6 @@ class ResourceResolverTest extends KernelTestCase
 
     protected function setUp ()
     {
-        parent::setUp();
 
         if (!self::$migrated) {
             $kernel = self::bootKernel();

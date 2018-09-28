@@ -1,7 +1,9 @@
 security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     encoders:
-        App\Entity\User: sha512
+        App\Entity\User:
+            algorithm: bcrypt
+            cost: 4
     providers:
         in_memory: { memory: ~ }
         in_database:
