@@ -60,12 +60,15 @@ class CrudExtension extends AbstractExtension
     private function getData ($entity, string $property)
     {
         $getter = 'get' . ucfirst(implode(array_map('ucfirst', explode('_', $property))));
-
-        return is_callable($getter) ? call_user_func([$entity, $getter]) : null;
+        return is_callable([$entity, $getter]) ? call_user_func([$entity, $getter]) : null;
     }
 
     private function translateData ($data): string
     {
+        if (!is_object($data)) {
+            return $data;
+        }
+
         if ($data instanceof \DateTimeInterface) { //type date
             return $data->format($this->container->getParameter('twig_format_date'));
         } else {
