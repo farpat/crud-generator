@@ -2,24 +2,15 @@
 
 namespace App\Tests\Utilities\Crud;
 
-use App\DataFixtures\AppFixtures;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Utilities\Crud\CrudAnnotation;
 use App\Utilities\Crud\CrudException;
 use App\Utilities\Crud\ResourceResolver;
 use Doctrine\Common\Annotations\Reader;
-use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
-use Doctrine\Common\DataFixtures\Purger\ORMPurger;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\ClassMetadata;
-use Doctrine\ORM\Tools\SchemaTool;
-use Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\StringInput;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class ResourceResolverTest extends KernelTestCase
 {
@@ -108,18 +99,29 @@ class ResourceResolverTest extends KernelTestCase
         $this->resolver->setResource($resource)->createEntity();
     }
 
+    private function _camelCaseToKebabCase ($input)
+    {
+        preg_match_all('!([A-Z][A-Z0-9]*(?=$|[A-Z][a-z0-9])|[A-Za-z][a-z0-9]+)!', $input, $matches);
+        $ret = $matches[0];
+        foreach ($ret as &$match) {
+            $match = $match == strtoupper($match) ? strtolower($match) : lcfirst($match);
+        }
+        return implode('-', $ret);
+    }
+
     /** @test */
-    public function testLegacyGetListOfResources ()
+    public function testGetListOfResources ()
     {
         $resources = $this->resolver->getListOfResources();
 
         $resourcesInDir = array_diff(scandir(self::$entityDir), ['.', '..', '.gitignore']);
 
         $this->assertEquals(count($resourcesInDir), count($resources));
-        foreach ($resourcesInDir as $resourceInDir) {
-            $this->assertArrayHasKey(substr(lcfirst($resourceInDir), 0, -4), $resources);
 
-            //on peut aussi vérifier les counts mais c'est déjà pas mal
+        foreach($resourcesInDir as $resourceInDir) {
+            $resource = $this->_camelCaseToKebabCase(substr($resourceInDir, 0, -4));
+            $resourceCount = $resources[$resource];
+            $this->assertEquals($this->resolver->setResource($resource)->resolveRepository()->count([]), $resourceCount);
         }
     }
 

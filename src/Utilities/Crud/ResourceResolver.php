@@ -196,11 +196,7 @@ class ResourceResolver
 
         foreach ($entities as $entity) {
             $resource = substr(lcfirst($entity), 0, -4);
-            $return[$resource] = $this->setResource($resource)->resolveRepository()
-                ->createQueryBuilder('r')
-                ->select('COUNT(r)')
-                ->getQuery()
-                ->getSingleScalarResult();
+            $return[$resource] = $this->setResource($resource)->resolveRepository()->count([]);
         }
 
         return $return;
