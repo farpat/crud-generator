@@ -5,6 +5,7 @@ namespace App\Utilities\Crud;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Persistence\{ObjectManager, ObjectRepository};
 use Doctrine\ORM\Mapping\{Annotation, ManyToMany, ManyToOne, OneToMany, OneToOne};
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\{Extension\Core\Type\FormType, FormBuilderInterface, FormFactoryInterface};
 
@@ -134,6 +135,7 @@ class ResourceResolver
 
     /**
      * Renvoie un " FormBuilder " de création ou d'édition selon $data
+     *
      * @param mixed $data Entité à hydrater par le formulaire
      *
      * @return FormBuilderInterface
@@ -175,11 +177,11 @@ class ResourceResolver
     }
 
     /**
-     * Renvoie un tableau contenant les lignes de la ressource courante
-     * @return array
+     * Renvoie le QueryBuilder de la requête permettant d'avoir toutes les lignes de la ressource courante
+     * @return QueryBuilder
      * @throws \Exception
      */
-    public function findAll (): array
+    public function getQueryBuilderOfFindAll (): QueryBuilder
     {
         $propertiesWithRelation = $this->getPropertiesWithRelation();
         $repository = $this->resolveRepository();
@@ -195,7 +197,17 @@ class ResourceResolver
             $selects[] = $property;
         }
 
-        return $builder->select($selects)->getQuery()->getResult();
+        return $builder->select($selects);
+    }
+
+    /**
+     * Renvoie un tableau contenant toutes les lignes de la ressource courante
+     * @return array
+     * @throws \Exception
+     */
+    public function findAll (): array
+    {
+        return $this->getQueryBuilderOfFindAll()->getQuery()->getResult();
     }
 
     /**

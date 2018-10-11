@@ -2,10 +2,9 @@
 
 namespace App\Controller;
 
-use App\Repository\CategoryRepository;
 use App\Utilities\Crud\ResourceResolver;
 use Doctrine\Common\Persistence\ObjectManager;
-use Pagerfanta\Adapter\ArrayAdapter;
+use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{RedirectResponse, Request, Response};
@@ -59,7 +58,7 @@ class GeneralController extends AbstractController
 
         $properties = $resolver->getIndexProperties();
 
-        $adapter = new ArrayAdapter($resolver->findAll());
+        $adapter = new DoctrineORMAdapter($resolver->getQueryBuilderOfFindAll());
         $entities = (new Pagerfanta($adapter))
             ->setMaxPerPage(3)
             ->setCurrentPage($request->query->getInt('page', 1));
