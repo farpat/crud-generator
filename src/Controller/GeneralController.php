@@ -47,7 +47,7 @@ class GeneralController extends AbstractController
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function index (ResourceResolver $resolver, Request $request, string $resource, CategoryRepository $categoryRepository): Response
+    public function index (ResourceResolver $resolver, Request $request, string $resource): Response
     {
         //pour éviter d'avoir url?page=1 mais plutôt url
         if ($request->query->getInt('page') === 1) {
