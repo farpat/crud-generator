@@ -91,7 +91,6 @@ class GeneralController extends AbstractController
             $manager->persist($entity);
             $manager->flush();
 
-
             $this->addFlash('success', 'Resource << ' . $entity->getName() . ' >> <strong>created</strong> with success!');
             $this->addFlash('id', $entity->getId());
 
@@ -129,7 +128,6 @@ class GeneralController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $manager->persist($entity);
             $manager->flush();
-
 
             $this->addFlash('success', 'Resource << ' . $entity->getName() . ' >> <strong>updated</strong> with success!');
             $this->addFlash('id', $entity->getId());
