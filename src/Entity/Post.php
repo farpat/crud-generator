@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\PostRepository")
  */
-class Post
+class Post implements \JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -186,5 +186,30 @@ class Post
     public function __toString ()
     {
         return $this->getName();
+    }
+
+    /**
+     * Specify data which should be serialized to JSON
+     * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
+     */
+    public function jsonSerialize ()
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'slug' => $this->getSlug(),
+            'category' => $this->getCategory(),
+            'created_at' => $this->getCreatedAt()->format('Y-m-d'),
+            'updated_at' => $this->getUpdatedAt()->format('Y-m-d'),
+            'content' => $this->getContent(),
+            'comments' => $this->getComments()->map(function($comment) {
+                $comment = $comment->jsonSerialize();
+                unset($comment['post']);
+                return $comment;
+            })->toArray()
+        ];
     }
 }

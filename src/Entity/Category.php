@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CategoryRepository")
  */
-class Category
+class Category implements \JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -41,46 +41,46 @@ class Category
      */
     private $posts;
 
-    public function __construct()
+    public function __construct ()
     {
         $this->posts = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getId (): ?int
     {
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName (): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName (string $name): self
     {
         $this->name = $name;
 
         return $this;
     }
 
-    public function getSlug(): ?string
+    public function getSlug (): ?string
     {
         return $this->slug;
     }
 
-    public function setSlug(string $slug): self
+    public function setSlug (string $slug): self
     {
         $this->slug = $slug;
 
         return $this;
     }
 
-    public function getPostsCount(): ?int
+    public function getPostsCount (): ?int
     {
         return $this->posts_count;
     }
 
-    public function setPostsCount(int $posts_count): self
+    public function setPostsCount (int $posts_count): self
     {
         $this->posts_count = $posts_count;
 
@@ -90,12 +90,12 @@ class Category
     /**
      * @return Collection|Post[]
      */
-    public function getPosts(): Collection
+    public function getPosts (): Collection
     {
         return $this->posts;
     }
 
-    public function addPost(Post $post): self
+    public function addPost (Post $post): self
     {
         if (!$this->posts->contains($post)) {
             $this->posts[] = $post;
@@ -106,7 +106,7 @@ class Category
         return $this;
     }
 
-    public function removePost(Post $post): self
+    public function removePost (Post $post): self
     {
         if ($this->posts->contains($post)) {
             $this->posts->removeElement($post);
@@ -124,5 +124,27 @@ class Category
     public function __toString ()
     {
         return $this->getName();
+    }
+
+    /**
+     * Specify data which should be serialized to JSON
+     * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
+     */
+    public function jsonSerialize ()
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'slug' => $this->getSlug(),
+            'posts_count' => $this->getPostsCount(),
+            'posts' => $this->getPosts()->map(function ($post) {
+                $post = $post->jsonSerialize();
+                unset($post['category']);
+                return $post;
+            })->toArray()
+        ];
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Utilities\Crud\CrudException;
+use App\Repository\CategoryRepository;
 use App\Utilities\Crud\ResourceResolver;
 use Doctrine\Common\Persistence\ObjectManager;
 use Pagerfanta\Adapter\ArrayAdapter;
@@ -47,18 +47,19 @@ class GeneralController extends AbstractController
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function index (ResourceResolver $resolver, Request $request, string $resource): Response
+    public function index (ResourceResolver $resolver, Request $request, string $resource, CategoryRepository $categoryRepository): Response
     {
+        //pour éviter d'avoir url?page=1 mais plutôt url
         if ($request->query->getInt('page') === 1) {
             $currentRoute = $request->attributes->get('_route');
             return $this->redirectToRoute($currentRoute, compact('resource'));
         }
 
         $resolver->setResource($resource);
-        $repository = $resolver->resolveRepository();
+
         $properties = $resolver->getIndexProperties();
 
-        $adapter = new ArrayAdapter($repository->findAll());
+        $adapter = new ArrayAdapter($resolver->findAll());
         $entities = (new Pagerfanta($adapter))
             ->setMaxPerPage(3)
             ->setCurrentPage($request->query->getInt('page', 1));

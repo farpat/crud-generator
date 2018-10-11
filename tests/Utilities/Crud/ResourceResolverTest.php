@@ -3,6 +3,7 @@
 namespace App\Tests\Utilities\Crud;
 
 use App\Entity\User;
+use App\Repository\CategoryRepository;
 use App\Repository\UserRepository;
 use App\Utilities\Crud\CrudAnnotation;
 use App\Utilities\Crud\CrudException;
@@ -27,6 +28,9 @@ class ResourceResolverTest extends KernelTestCase
     /** @var bool */
     private static $migrated;
 
+    /**
+     * @throws \Exception
+     */
     protected function setUp ()
     {
 
@@ -110,7 +114,7 @@ class ResourceResolverTest extends KernelTestCase
     }
 
     /** @test */
-    public function testGetListOfResources ()
+    public function getListOfResources ()
     {
         $resources = $this->resolver->getListOfResources();
 
@@ -118,7 +122,7 @@ class ResourceResolverTest extends KernelTestCase
 
         $this->assertEquals(count($resourcesInDir), count($resources));
 
-        foreach($resourcesInDir as $resourceInDir) {
+        foreach ($resourcesInDir as $resourceInDir) {
             $resource = $this->_camelCaseToKebabCase(substr($resourceInDir, 0, -4));
             $resourceCount = $resources[$resource];
             $this->assertEquals($this->resolver->setResource($resource)->resolveRepository()->count([]), $resourceCount);
@@ -209,5 +213,30 @@ class ResourceResolverTest extends KernelTestCase
                 $this->assertTrue($in_array);
             }
         }
+    }
+
+    /** @test */
+    public function findAll ()
+    {
+        $this->resolver->setResource('category');
+
+        $categoryRepository = self::$container->get(CategoryRepository::class);
+        $categories = $categoryRepository
+            ->createQueryBuilder('c')
+            ->select(['p', 'c'])
+            ->join('c.posts', 'p')
+            ->getQuery()
+            ->getResult();
+
+        $categoriesWithResolver = $this->resolver->findAll();
+
+
+
+        $this->assertEquals($categories[0], $categoriesWithResolver[0]);
+        $this->assertCount(count($categories), $categoriesWithResolver);
+        $this->assertEquals(
+            $categories[(count($categories) - 1)],
+            $categoriesWithResolver[(count($categories) - 1)]
+        );
     }
 }
