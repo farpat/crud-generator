@@ -1,6 +1,7 @@
 # Présentation
 Ce dépôt est une préparation à un tutoriel.
-L'objectif de celui-ci est de permettre d'avoir un controller ici en l'occurence Général qui s'occupe de généraliser le CRUD de chaque ressource ==> Plutôt que de faire X contrôleurs et répéter les mêmes actions, le but de ce contrôleur est de généraliser les actions autour d'un seul contrôleurs.
+L'objectif de celui-ci est de permettre d'avoir un controller ici en l'occurence " GeneralController " qui s'occupe de généraliser le CRUD de chaque ressource 
+==> Plutôt que de faire X contrôleurs et répéter les mêmes actions, le but de ce contrôleur est de généraliser les actions autour d'un seul contrôleur.
 
 # Présentation plus technique
 Le code le plus important se trouve dans :
@@ -10,7 +11,7 @@ Le code le plus important se trouve dans :
 
 # Utilisation
 - `git clone ...`
-- `bin/console doctrine:migrations:migrate -n`
-- `bin/console doctrine:fixtures:load -n`
-- `bin/console server:run`
+- `bin/console doctrine:migrations:migrate -n` : exécution des migrations
+- `bin/console doctrine:fixtures:load -n` : chargement des données de test
+- `bin/console server:run` : démarrage du serveur php
 - Il faut se rendre sur http://localhost:8000/general/_list pour jouer avec (et se laisser guider)

@@ -2,10 +2,9 @@
 
 namespace App\Controller;
 
-use App\Repository\CategoryRepository;
 use App\Utilities\Crud\ResourceResolver;
 use Doctrine\Common\Persistence\ObjectManager;
-use Pagerfanta\Adapter\ArrayAdapter;
+use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{RedirectResponse, Request, Response};
@@ -47,7 +46,7 @@ class GeneralController extends AbstractController
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function index (ResourceResolver $resolver, Request $request, string $resource, CategoryRepository $categoryRepository): Response
+    public function index (ResourceResolver $resolver, Request $request, string $resource): Response
     {
         //pour éviter d'avoir url?page=1 mais plutôt url
         if ($request->query->getInt('page') === 1) {
@@ -59,7 +58,7 @@ class GeneralController extends AbstractController
 
         $properties = $resolver->getIndexProperties();
 
-        $adapter = new ArrayAdapter($resolver->findAll());
+        $adapter = new DoctrineORMAdapter($resolver->getQueryBuilderOfFindAll());
         $entities = (new Pagerfanta($adapter))
             ->setMaxPerPage(3)
             ->setCurrentPage($request->query->getInt('page', 1));
@@ -91,7 +90,6 @@ class GeneralController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $manager->persist($entity);
             $manager->flush();
-
 
             $this->addFlash('success', 'Resource << ' . $entity->getName() . ' >> <strong>created</strong> with success!');
             $this->addFlash('id', $entity->getId());
@@ -130,7 +128,6 @@ class GeneralController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $manager->persist($entity);
             $manager->flush();
-
 
             $this->addFlash('success', 'Resource << ' . $entity->getName() . ' >> <strong>updated</strong> with success!');
             $this->addFlash('id', $entity->getId());
