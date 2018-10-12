@@ -50,7 +50,7 @@ class ResourceResolver
      *
      * @return ResourceResolver
      */
-    public function setResource (string $resource): ResourceResolver
+    public function setResource (string $resource): self
     {
         $this->resource = implode(array_map('ucfirst', explode('-', $resource)));
         return $this;
