@@ -1,6 +1,13 @@
 .PHONY: test dev install help
 .DEFAULT_GOAL= help
 
+COM_COLOR   = \033[0;34m
+OBJ_COLOR   = \033[0;36m
+OK_COLOR    = \033[0;32m
+ERROR_COLOR = \033[0;31m
+WARN_COLOR  = \033[0;33m
+NO_COLOR    = \033[m
+
 # Set $(FRAMEWORK)
 FRAMEWORK=not
 ifneq ("$(wildcard bin)", "")
@@ -18,24 +25,28 @@ else
 	PHP_SERVER=php -S localhost:8000 -t public/ -d display_errors=1
 endif
 
-composer.json:
-	composer init --verbose
 
 node_modules:
 ifneq ("$(wildcard package.json)", "")
 	npm i
 endif
 
+vendor: composer.json
+	composer install
+
 composer.lock: composer.json
 	composer update
 
-vendor: composer.lock
-	composer install
+package-json.lock: package.json
+	npm run update
+	npm i
 
 install: vendor node_modules ## Install the composer dependencies and npm dependencies
 
+update: composer.lock package-json.lock ## Update the composer dependencies and npm dependencies
+
 help:
-	@grep -E '(^[a-zA-Z_-]+:.*?##.*$$)|(^##)' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-15s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
+	@grep -E '(^[a-zA-Z_-]+:.*?##.*$$)|(^##)' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "$(OK_COLOR)%-15s$(NO_COLOR) %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
 
 test: install ## Run unit tests
 ifneq ($(FRAMEWORK),symfony)
