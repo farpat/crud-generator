@@ -1,4 +1,4 @@
-.PHONY: test dev install help
+.PHONY: test dev install help update
 .DEFAULT_GOAL= help
 
 COM_COLOR   = \033[0;34m
@@ -25,6 +25,9 @@ else
 	PHP_SERVER=php -S localhost:8000 -t public/ -d display_errors=1
 endif
 
+FILTER?=tests
+DIR?=
+
 
 node_modules:
 ifneq ("$(wildcard package.json)", "")
@@ -34,25 +37,24 @@ endif
 vendor: composer.json
 	composer install
 
-composer.lock: composer.json
-	composer update
+install: vendor node_modules ## Install the composer dependencies and npm dependencies
 
-package-json.lock: package.json
+update: ## Update the composer dependencies and npm dependencies
+	composer update
 	npm run update
 	npm i
 
-install: vendor node_modules ## Install the composer dependencies and npm dependencies
-
-update: composer.lock package-json.lock ## Update the composer dependencies and npm dependencies
+clean: ## Clean composer dependencies and npm dependencies
+	rm -rf vendor node_modules package-lock.json composer.lock
 
 help:
-	@grep -E '(^[a-zA-Z_-]+:.*?##.*$$)|(^##)' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "$(OK_COLOR)%-15s$(NO_COLOR) %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(OK_COLOR)%-15s$(NO_COLOR) %s\n", $$1, $$2}'
 
 test: install ## Run unit tests
 ifneq ($(FRAMEWORK),symfony)
-	vendor/bin/phpunit --stop-on-failure
+	vendor/bin/phpunit $(DIR) --filter $(FILTER) --stop-on-failure
 else
-	bin/phpunit --stop-on-failure
+	bin/phpunit $(DIR) --filter $(FILTER) --stop-on-failure
 endif
 
 dev: install ## Run development servers
