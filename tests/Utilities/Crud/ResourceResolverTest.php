@@ -230,13 +230,13 @@ class ResourceResolverTest extends KernelTestCase
 
         $categoriesWithResolver = $this->resolver->findAll();
 
-
+        $categoriesCount = count($categories);
 
         $this->assertEquals($categories[0], $categoriesWithResolver[0]);
-        $this->assertCount(count($categories), $categoriesWithResolver);
+        $this->assertCount($categoriesCount, $categoriesWithResolver);
         $this->assertEquals(
-            $categories[(count($categories) - 1)],
-            $categoriesWithResolver[(count($categories) - 1)]
+            $categories[($categoriesCount - 1)],
+            $categoriesWithResolver[($categoriesCount - 1)]
         );
     }
 }
