@@ -132,7 +132,8 @@ class ResourceResolverTest extends KernelTestCase
     /** @test */
     public function getEntity ()
     {
-        $entity = self::$container->get('doctrine')->getManager()->getRepository(User::class)->find(5);
+        $userRepository = self::$container->get(UserRepository::class);
+        $entity = $userRepository->find(5);
 
         $entityWithResolver = $this->resolver->setResource('user')->getEntity(5);
 
