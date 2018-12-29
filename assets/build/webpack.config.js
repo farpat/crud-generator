@@ -3,8 +3,6 @@ const config = require('./config');
 const path = require('path');
 const debug = process.env.NODE_ENV === 'development';
 
-console.log(process.env.NODE_ENV);
-
 const {VueLoaderPlugin} = require('vue-loader');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
@@ -13,8 +11,29 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const WebpackBundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const ManifestPlugin = require('webpack-manifest-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const chokidar = require('chokidar');
 
 let configWebpack = {
+    devServer: {
+        before(app, server) {
+            chokidar.watch(config.refresh).on('change', function () {
+                server.sockWrite(server.sockets, 'content-changed');
+            })
+        },
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+            'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization'
+        },
+        port: config.port,
+        overlay: true,
+        clientLogLevel: 'warning',
+        publicPath: (debug ? ('http://localhost:' + config.port) : '') + '/assets/',
+        stats: {
+            colors: true,
+            chunks: false
+        },
+    },
     mode: debug ? 'development' : 'production',
     devtool: debug ? 'cheap-module-eval-source-map' : false,
     entry: config.entry,
@@ -140,16 +159,6 @@ if (!debug) {
         new CleanWebpackPlugin(['assets'], {
             root: path.resolve('./public'),
         }));
-}
-else {
-    configWebpack.plugins.push(
-        new webpack.HotModuleReplacementPlugin(),
-    );
-
-    configWebpack.output.path = '/tmp/';
-    for (let name in configWebpack.entry) {
-        configWebpack.entry[name] = [path.resolve(__dirname, './client'), ...configWebpack.entry[name]];
-    }
 }
 
 module.exports = configWebpack;
